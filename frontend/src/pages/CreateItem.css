@@ -1,0 +1,158 @@
+.create-item-page {
+  min-height: 100%;
+  padding: 24px 20px 48px;
+}
+
+.create-item-card {
+  max-width: 640px;
+  margin: 0 auto;
+  background: var(--card-bg);
+  border-radius: 12px;
+  padding: 32px;
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-color);
+}
+
+.create-item-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.create-item-header i {
+  font-size: 36px;
+  color: var(--primary-color);
+  margin-bottom: 16px;
+  display: block;
+}
+
+.create-item-header h2 {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--text-primary);
+}
+
+.create-item-header p {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.availability-options {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.availability-options label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.photo-upload-area {
+  border: 2px dashed var(--border-color);
+  border-radius: 12px;
+  padding: 32px;
+  text-align: center;
+  background: #fafafa;
+}
+
+.photo-upload-btn {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  color: var(--primary-color);
+}
+
+.photo-upload-btn input {
+  display: none;
+}
+
+.photo-upload-btn i {
+  font-size: 40px;
+}
+
+.photo-upload-btn span {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.photo-hint {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 12px;
+}
+
+.photo-previews {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.photo-preview {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+}
+
+.photo-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.photo-remove {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+}
+
+.photo-remove:hover {
+  background: rgba(0, 0, 0, 0.8);
+}
+
+.form-group label i {
+  margin-right: 8px;
+  width: 16px;
+  color: var(--text-secondary);
+}
+
+.form-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.form-actions .btn {
+  flex: 1;
+}
+
+@media (max-width: 600px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+}

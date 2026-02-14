@@ -1,0 +1,20 @@
+{
+  "name": "swapit",
+  "version": "1.0.0",
+  "description": "SwapIt - item exchange platform (React + Node.js + MongoDB)",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "ts-node-dev --respawn --transpile-only backend/src/server.ts",
+    "dev:frontend": "cd frontend && npm start",
+    "build": "npm run build:backend && npm run build:frontend",
+    "build:backend": "cd backend && tsc",
+    "build:frontend": "cd frontend && npm run build",
+    "install:all": "npm install && cd backend && npm install && cd ../frontend && npm install"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "dependencies": {
+    "mongodb": "^7.1.0"
+  }
+}

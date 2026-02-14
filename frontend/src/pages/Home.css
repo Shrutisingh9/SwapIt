@@ -1,0 +1,262 @@
+/* OLX-style Home page */
+.home-olx {
+  padding: 24px 0 48px;
+}
+
+.section-title {
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 24px;
+}
+
+/* OLX-style grid - 3-4 columns */
+.olx-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 20px;
+}
+
+/* OLX-style card */
+.olx-card {
+  display: block;
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  border: 1px solid var(--border-color);
+  transition: all 0.2s;
+}
+
+.olx-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+}
+
+.olx-card-image {
+  position: relative;
+  width: 100%;
+  height: 220px;
+  overflow: hidden;
+  background: #f1f5f9;
+}
+
+.olx-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.olx-card-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 64px;
+  color: #cbd5e1;
+}
+
+.olx-card-wishlist {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.olx-card-wishlist:hover {
+  background: #fff;
+  transform: scale(1.1);
+}
+
+.olx-card-badge {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  padding: 4px 10px;
+  background: rgba(107, 142, 116, 0.95);
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 4px;
+}
+
+.olx-card-body {
+  padding: 16px;
+}
+
+.olx-card-price {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+
+.olx-card-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.4;
+}
+
+.olx-card-subtitle {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+
+.olx-card-location {
+  font-size: 12px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.olx-card-date {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+/* CTA banner - OLX style "Want to see your stuff here?" */
+.olx-cta-banner {
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+  border-radius: 12px;
+  padding: 32px;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.olx-cta-banner h3 {
+  font-size: 20px;
+  margin-bottom: 8px;
+}
+
+.olx-cta-banner p {
+  font-size: 14px;
+  opacity: 0.95;
+  margin-bottom: 16px;
+  max-width: 400px;
+}
+
+.btn-cta {
+  padding: 12px 24px;
+  background: white;
+  color: var(--primary-color);
+  font-weight: 600;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: transform 0.2s;
+}
+
+.btn-cta:hover {
+  transform: scale(1.05);
+  color: var(--primary-dark);
+}
+
+/* Load more */
+.load-more-wrapper {
+  text-align: center;
+  margin-top: 32px;
+}
+
+.btn-load-more {
+  padding: 12px 32px;
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-load-more:hover {
+  background: var(--primary-dark);
+}
+
+/* Empty state */
+.home-loading,
+.no-items-olx {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.no-items-olx .no-items-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  color: var(--text-secondary);
+}
+
+.no-items-olx .no-items-icon i {
+  color: inherit;
+}
+
+.olx-card-placeholder i,
+.profile-grid-placeholder i {
+  font-size: 48px;
+  color: #cbd5e1;
+}
+
+.olx-card-wishlist i {
+  font-size: 18px;
+}
+
+.olx-cta-banner .cta-icon {
+  font-size: 36px;
+  margin-bottom: 8px;
+  opacity: 0.9;
+}
+
+.no-items-olx h3 {
+  font-size: 22px;
+  margin-bottom: 8px;
+  color: var(--text-primary);
+}
+
+.no-items-olx p {
+  color: var(--text-secondary);
+}
+
+.explore-filters {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.filter-pill {
+  padding: 8px 16px;
+  background: #f1f5f9;
+  color: var(--text-primary);
+  border-radius: 20px;
+  font-size: 14px;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.filter-pill:hover,
+.filter-pill.active {
+  background: var(--primary-color);
+  color: white;
+}
