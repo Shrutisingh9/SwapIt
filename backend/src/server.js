@@ -1,4 +1,5 @@
 const http = require("http");
+const path = require("path");
 const { Server: SocketIOServer } = require("socket.io");
 const { createApp } = require("./app");
 const { env } = require("./config/env");
@@ -12,6 +13,9 @@ async function bootstrap() {
   const app = createApp();
   const server = http.createServer(app);
 
+  // ==============================
+  // ✅ SOCKET.IO SETUP
+  // ==============================
   const io = new SocketIOServer(server, {
     cors: {
       origin: process.env.FRONTEND_URL || "http://localhost:3000",
@@ -27,8 +31,10 @@ async function bootstrap() {
       if (!token) {
         return next(new Error("Unauthorized"));
       }
+
       const payload = verifyAccessToken(token);
       socket.user = { id: payload.sub, email: payload.email };
+
       return next();
     } catch {
       return next(new Error("Unauthorized"));
@@ -47,29 +53,46 @@ async function bootstrap() {
       }
     });
 
-    socket.on(
-      "sendMessage",
-      async (data) => {
-        try {
-          const msg = await chatService.createMessage(
-            user.id,
-            data.roomId,
-            data.body
-          );
-          io.to(data.roomId).emit("newMessage", msg);
-        } catch {
-          socket.emit("error", "Cannot send message");
-        }
+    socket.on("sendMessage", async (data) => {
+      try {
+        const msg = await chatService.createMessage(
+          user.id,
+          data.roomId,
+          data.body
+        );
+
+        io.to(data.roomId).emit("newMessage", msg);
+      } catch {
+        socket.emit("error", "Cannot send message");
       }
-    );
+    });
   });
 
-  const port = parseInt(env.PORT, 10);
+  // ==============================
+  // ✅ SERVE REACT FRONTEND (PRODUCTION)
+  // ==============================
+  if (process.env.NODE_ENV === "production") {
+    const buildPath = path.join(__dirname, "../../frontend/build");
+
+    app.use(require("express").static(buildPath));
+
+    app.get("*", (req, res) => {
+      res.sendFile(path.join(buildPath, "index.html"));
+    });
+  }
+
+  // ==============================
+  // ✅ START SERVER
+  // ==============================
+  const port = process.env.PORT || 4000;
 
   server.listen(port, () => {
     console.log(`SwapIt API and WebSocket server listening on port ${port}`);
   });
 
+  // ==============================
+  // ✅ GRACEFUL SHUTDOWN
+  // ==============================
   const shutdown = async () => {
     console.log("Shutting down server...");
     server.close(async () => {
