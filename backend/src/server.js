@@ -71,15 +71,14 @@ async function bootstrap() {
   // ==============================
   // ✅ SERVE REACT FRONTEND (PRODUCTION)
   // ==============================
-  if (process.env.NODE_ENV === "production") {
-    const buildPath = require("path").join(process.cwd(), "../frontend/build");
+  const buildPath = require("path").join(process.cwd(), "../frontend/build");
   
-    app.use(require("express").static(buildPath));
+  app.use(require("express").static(buildPath));
   
-    app.get("*", (req, res) => {
-      res.sendFile(require("path").join(buildPath, "index.html"));
-    });
-  }
+  app.get("*", (req, res) => {
+    res.sendFile(require("path").join(buildPath, "index.html"));
+  });
+
 
   // ==============================
   // ✅ START SERVER
