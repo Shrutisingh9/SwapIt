@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../contexts/AuthContext';
+import { SkeletonDetail } from '../components/Skeleton';
 
 function ItemDetail() {
   const { id } = useParams();
@@ -12,10 +13,20 @@ function ItemDetail() {
   const [selectedItemId, setSelectedItemId] = useState('');
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
+  const [chatLoading, setChatLoading] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
 
   useEffect(() => {
     fetchItem();
-    if (user) fetchMyItems();
+    if (user) {
+      fetchMyItems();
+      axios.get('/api/v1/users/me').then((res) => {
+        const ids = (res.data?.user?.savedItems || []).map((sid) => (sid?._id || sid).toString());
+        setIsSaved(ids.includes(id));
+      }).catch(() => {});
+    } else {
+      setIsSaved(false);
+    }
   }, [id, user]);
 
   const fetchItem = async () => {
@@ -62,11 +73,36 @@ function ItemDetail() {
     }
   };
 
+  const toggleWishlist = async (e) => {
+    e.preventDefault();
+    if (!user) return;
+    try {
+      await axios.post(`/api/v1/users/me/wishlist/${id}`);
+      setIsSaved((prev) => !prev);
+    } catch (e) {
+      console.error('Failed to toggle wishlist', e);
+    }
+  };
+
+  const handleChatWithOwner = async () => {
+    if (!user || !item?.ownerId) return;
+    const ownerId = item.ownerId._id || item.ownerId;
+    if (ownerId === user.id) return;
+    setChatLoading(true);
+    try {
+      const res = await axios.post('/api/v1/chat/direct', { otherUserId: ownerId, itemId: id });
+      navigate(`/chat?id=${res.data._id}`);
+    } catch (e) {
+      alert(e.response?.data?.message || 'Failed to start chat');
+    } finally {
+      setChatLoading(false);
+    }
+  };
+
   if (loading) {
     return (
-      <div style={{ textAlign: 'center', padding: '60px 20px' }}>
-        <div className="loading" style={{ width: '50px', height: '50px', margin: '0 auto' }}></div>
-        <p style={{ marginTop: '20px', color: 'var(--text-secondary)' }}>Loading item details...</p>
+      <div className="fade-in">
+        <SkeletonDetail />
       </div>
     );
   }
@@ -91,7 +127,7 @@ function ItemDetail() {
     <div className="fade-in">
       <div className="card">
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px', alignItems: 'start' }}>
-          <div>
+          <div style={{ position: 'relative' }}>
             <div style={{ 
               borderRadius: '16px', 
               overflow: 'hidden', 
@@ -102,6 +138,16 @@ function ItemDetail() {
               alignItems: 'center',
               justifyContent: 'center'
             }}>
+              {user && !isOwner && (
+                <button
+                  className={`olx-card-wishlist ${isSaved ? 'wishlist-active' : ''}`}
+                  onClick={toggleWishlist}
+                  aria-label={isSaved ? 'Remove from wishlist' : 'Add to wishlist'}
+                  style={{ position: 'absolute', top: 16, right: 16, zIndex: 2 }}
+                >
+                  <i className={isSaved ? 'fas fa-heart' : 'far fa-heart'}></i>
+                </button>
+              )}
               {item.images && item.images.length > 0 ? (
                 <img 
                   src={item.images[0].url} 
@@ -175,8 +221,21 @@ function ItemDetail() {
               <h3 style={{ fontSize: '20px', fontWeight: '700', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <i className="fas fa-user"></i> Owner Information
               </h3>
-              <div style={{ marginBottom: '12px' }}>
+              <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
                 <strong style={{ fontSize: '18px' }}>{item.ownerId?.name}</strong>
+                {user && !isOwner && (
+                  <button
+                    onClick={handleChatWithOwner}
+                    disabled={chatLoading}
+                    className="btn btn-primary"
+                  >
+                    {chatLoading ? (
+                      <><span className="loading" style={{ width: '18px', height: '18px' }}></span> Connecting...</>
+                    ) : (
+                      <><i className="fas fa-comments"></i> Chat</>
+                    )}
+                  </button>
+                )}
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
                 <span className="item-owner-rating" style={{ fontSize: '16px' }}>

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
+import { Skeleton } from '../components/Skeleton';
 import './Profile.css';
 
 function Profile() {
@@ -63,9 +64,18 @@ function Profile() {
 
   if (loading) {
     return (
-      <div className="profile-loading">
-        <div className="loading" style={{ width: '50px', height: '50px' }}></div>
-        <p>Loading profile...</p>
+      <div className="fade-in">
+        <h1 className="page-title"><i className="fas fa-user"></i> Profile</h1>
+        <div className="card">
+          <div style={{ display: 'flex', gap: '24px', alignItems: 'start' }}>
+            <Skeleton className="skeleton-avatar" style={{ width: 100, height: 100, borderRadius: '50%' }} />
+            <div style={{ flex: 1 }}>
+              <Skeleton className="skeleton-line" style={{ width: 200, height: 28, marginBottom: 16 }} />
+              <Skeleton className="skeleton-line" style={{ width: '80%', marginBottom: 8 }} />
+              <Skeleton className="skeleton-line short" style={{ width: '60%' }} />
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
@@ -184,6 +194,7 @@ function Profile() {
                   onChange={(e) => setEditForm((f) => ({ ...f, phone: e.target.value }))}
                   placeholder="e.g. 9876543210"
                 />
+                <small className="form-hint">Phone is private and hidden from others by default (like WhatsApp).</small>
               </div>
               <div className="form-group">
                 <label><i className="fas fa-map-marker-alt"></i> City</label>

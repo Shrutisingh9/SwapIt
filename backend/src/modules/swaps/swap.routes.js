@@ -16,6 +16,19 @@ router.get("/", requireAuth, async (req, res, next) => {
   }
 });
 
+router.get("/:id", requireAuth, async (req, res, next) => {
+  try {
+    const swaps = await service.listForUser(req.user.id);
+    const swap = swaps.find((s) => (s._id?.toString?.() || String(s._id)) === req.params.id);
+    if (!swap) {
+      return res.status(404).json({ error: "NotFound", message: "Swap not found" });
+    }
+    res.json(swap);
+  } catch (err) {
+    next(err);
+  }
+});
+
 router.post(
   "/",
   requireAuth,

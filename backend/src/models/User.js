@@ -10,6 +10,7 @@ const UserSchema = new Schema(
     gender: { type: String, enum: ["Male", "Female", "Other"], default: null },
     dateOfBirth: { type: Date, default: null },
     phone: { type: String, default: null },
+    showPhoneInProfile: { type: Boolean, default: false },
     avatarUrl: { type: String },
     bio: { type: String },
     rating: { type: Number, default: 0 },

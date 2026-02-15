@@ -14,12 +14,13 @@
 }
 
 .navbar-inner {
-  max-width: 1200px;
+  width: 100%;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 0 20px;
+  padding: 0 24px;
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 20px;
   flex-wrap: wrap;
 }
 
@@ -70,8 +71,8 @@
 
 .navbar-search {
   flex: 1;
-  min-width: 200px;
-  max-width: 500px;
+  min-width: 180px;
+  max-width: 480px;
   display: flex;
   border: 2px solid var(--border-color);
   border-radius: 8px;
@@ -100,6 +101,33 @@
 
 .search-btn:hover {
   background: var(--primary-dark);
+}
+
+.navbar-main-links {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.navbar-main-links a {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 14px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.navbar-main-links a:hover,
+.navbar-main-links a.active {
+  color: var(--primary-color);
+  font-weight: 600;
+  background: rgba(107, 142, 116, 0.08);
+}
+
+.navbar-main-links a i {
+  margin-right: 4px;
 }
 
 .navbar-actions {
@@ -161,12 +189,13 @@
 }
 
 .secondary-inner {
-  max-width: 1200px;
+  width: 100%;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 0 20px;
+  padding: 0 24px;
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 20px;
   flex-wrap: wrap;
 }
 
@@ -194,6 +223,7 @@
 }
 
 .category-pills {
+  flex: 1;
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
@@ -218,28 +248,6 @@
   color: white;
 }
 
-.secondary-links {
-  display: flex;
-  gap: 16px;
-  margin-left: auto;
-}
-
-.secondary-links a {
-  color: var(--text-secondary);
-  text-decoration: none;
-  font-size: 14px;
-}
-
-.secondary-links a:hover,
-.secondary-links a.active {
-  color: var(--primary-color);
-  font-weight: 600;
-}
-
-.date-display {
-  font-size: 13px;
-  color: var(--text-secondary);
-}
 
 .categories-wrapper {
   position: relative;
@@ -293,7 +301,8 @@
     flex-direction: column;
     align-items: flex-start;
   }
-  .secondary-links {
-    margin-left: 0;
+  .navbar-main-links {
+    order: 1;
+    width: 100%;
   }
 }

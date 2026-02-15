@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { SkeletonList } from '../components/Skeleton';
 
 function Notifications() {
   const [notifications, setNotifications] = useState([]);
@@ -21,9 +22,9 @@ function Notifications() {
 
   if (loading) {
     return (
-      <div style={{ textAlign: 'center', padding: '60px 20px' }}>
-        <div className="loading" style={{ width: '50px', height: '50px', margin: '0 auto' }}></div>
-        <p style={{ marginTop: '20px', color: 'var(--text-secondary)' }}>Loading notifications...</p>
+      <div className="fade-in">
+        <h1 className="page-title"><i className="fas fa-bell"></i> Notifications</h1>
+        <SkeletonList count={5} />
       </div>
     );
   }

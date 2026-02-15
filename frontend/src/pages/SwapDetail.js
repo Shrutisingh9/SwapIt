@@ -1,8 +1,10 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../contexts/AuthContext';
 import io from 'socket.io-client';
+import { SkeletonSwapCard } from '../components/Skeleton';
+import './SwapDetail.css';
 
 function SwapDetail() {
   const { id } = useParams();
@@ -13,6 +15,7 @@ function SwapDetail() {
   const [socket, setSocket] = useState(null);
   const [roomId, setRoomId] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('details');
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
@@ -24,9 +27,8 @@ function SwapDetail() {
 
   useEffect(() => {
     if (roomId && token) {
-      const newSocket = io('http://localhost:4000', {
-        auth: { token }
-      });
+      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:4000';
+      const newSocket = io(apiUrl, { auth: { token } });
 
       newSocket.on('connect', () => {
         newSocket.emit('joinRoom', roomId);
@@ -50,13 +52,13 @@ function SwapDetail() {
 
   const fetchSwap = async () => {
     try {
-      const response = await axios.get('/api/v1/swaps');
-      const swapData = response.data.find((s) => s._id === id);
+      const response = await axios.get(`/api/v1/swaps/${id}`);
+      const swapData = response.data;
       setSwap(swapData);
 
-      if (swapData && swapData.chatRoomId) {
+      if (swapData?.chatRoomId) {
         const chatRoomResponse = await axios.get(`/api/v1/chat/rooms/${swapData.chatRoomId}/messages`);
-        setMessages(chatRoomResponse.data);
+        setMessages(chatRoomResponse.data || []);
         setRoomId(swapData.chatRoomId);
       }
     } catch (error) {
@@ -94,173 +96,171 @@ function SwapDetail() {
 
   const getStatusBadge = (status) => {
     const badges = {
-      PENDING: { class: 'badge-warning', icon: '⏳', text: 'Pending' },
-      ACCEPTED: { class: 'badge-success', icon: '✅', text: 'Accepted' },
-      REJECTED: { class: 'badge-danger', icon: '❌', text: 'Rejected' },
-      CANCELLED: { class: 'badge-danger', icon: '🚫', text: 'Cancelled' },
-      COMPLETED: { class: 'badge-success', icon: '🎉', text: 'Completed' }
+      PENDING: { class: 'badge-warning', icon: 'fa-clock', text: 'Pending' },
+      ACCEPTED: { class: 'badge-success', icon: 'fa-check', text: 'Accepted' },
+      REJECTED: { class: 'badge-danger', icon: 'fa-times', text: 'Rejected' },
+      CANCELLED: { class: 'badge-danger', icon: 'fa-ban', text: 'Cancelled' },
+      COMPLETED: { class: 'badge-success', icon: 'fa-check-double', text: 'Completed' }
     };
     const badge = badges[status] || badges.PENDING;
-    return <span className={`badge ${badge.class}`} style={{ fontSize: '14px', padding: '8px 16px' }}>{badge.icon} {badge.text}</span>;
+    return <span className={`badge ${badge.class}`}><i className={`fas ${badge.icon}`}></i> {badge.text}</span>;
   };
 
   if (loading) {
     return (
-      <div style={{ textAlign: 'center', padding: '60px 20px' }}>
-        <div className="loading" style={{ width: '50px', height: '50px', margin: '0 auto' }}></div>
-        <p style={{ marginTop: '20px', color: 'var(--text-secondary)' }}>Loading swap details...</p>
+      <div className="fade-in">
+        <h1 className="page-title"><i className="fas fa-exchange-alt"></i> Swap Details</h1>
+        <SkeletonSwapCard />
       </div>
     );
   }
 
   if (!swap) {
     return (
-      <div className="empty-state">
-        <div className="empty-state-icon">❌</div>
+      <div className="swap-detail-empty">
+        <div className="empty-state-icon"><i className="fas fa-times-circle"></i></div>
         <h3>Swap not found</h3>
         <p>The swap you're looking for doesn't exist.</p>
       </div>
     );
   }
 
+  const responderIdStr = swap.responderId?._id?.toString() || swap.responderId?.toString();
+  const isResponder = user?.id === responderIdStr;
+  const requestedItem = swap.requestedItemId;
+  const offeredItem = swap.offeredItemId;
+
+  // My Item vs Their Item: requester offers offeredItem, responder owns requestedItem
+  const myItem = isResponder ? requestedItem : offeredItem;
+  const theirItem = isResponder ? offeredItem : requestedItem;
+  const otherUser = isResponder ? swap.requesterId : swap.responderId;
+
   const isMyMessage = (msg) => msg.senderId?._id === user?.id || msg.senderId === user?.id;
 
   return (
-    <div className="fade-in">
-      <h1 className="page-title">💼 Swap Details</h1>
+    <div className="swap-detail fade-in">
+      <h1 className="page-title"><i className="fas fa-exchange-alt"></i> Swap Details</h1>
 
-      <div className="card">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '24px' }}>
-          <h2 style={{ fontSize: '24px', fontWeight: '700' }}>Swap Information</h2>
-          {getStatusBadge(swap.status)}
-        </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', marginBottom: '24px' }}>
-          <div style={{ 
-            padding: '24px', 
-            background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(99, 102, 241, 0.05) 100%)',
-            borderRadius: '16px',
-            border: '2px solid rgba(99, 102, 241, 0.2)'
-          }}>
-            <h3 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '12px', color: 'var(--text-secondary)' }}>
-              🎯 Requested Item
-            </h3>
-            <div style={{ fontSize: '20px', fontWeight: '700', color: 'var(--primary-color)' }}>
-              {swap.requestedItemId?.title || 'Loading...'}
-            </div>
-          </div>
-          <div style={{ 
-            padding: '24px', 
-            background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%)',
-            borderRadius: '16px',
-            border: '2px solid rgba(16, 185, 129, 0.2)'
-          }}>
-            <h3 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '12px', color: 'var(--text-secondary)' }}>
-              💎 Offered Item
-            </h3>
-            <div style={{ fontSize: '20px', fontWeight: '700', color: 'var(--success-color)' }}>
-              {swap.offeredItemId?.title || 'Loading...'}
-            </div>
-          </div>
-        </div>
-
-        {swap.status === 'PENDING' && swap.responderId === user?.id && (
-          <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
-            <button onClick={() => handleAction('accept')} className="btn btn-success">
-              ✅ Accept Swap
-            </button>
-            <button onClick={() => handleAction('reject')} className="btn btn-danger">
-              ❌ Reject Swap
-            </button>
-          </div>
-        )}
-        {swap.status === 'ACCEPTED' && (
-          <div style={{ marginTop: '16px' }}>
-            <button onClick={() => handleAction('complete')} className="btn btn-success">
-              🎉 Mark Swap as Complete
-            </button>
-          </div>
-        )}
+      {/* Tabs: Details | Chat */}
+      <div className="swap-detail-tabs">
+        <button
+          className={`swap-tab ${activeTab === 'details' ? 'active' : ''}`}
+          onClick={() => setActiveTab('details')}
+        >
+          <i className="fas fa-info-circle"></i> Details
+        </button>
+        <button
+          className={`swap-tab ${activeTab === 'chat' ? 'active' : ''}`}
+          onClick={() => setActiveTab('chat')}
+        >
+          <i className="fas fa-comments"></i> Chat
+        </button>
       </div>
 
-      {roomId && (
-        <div className="card">
-          <h2 style={{ fontSize: '24px', fontWeight: '700', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            💬 Chat Room
-          </h2>
-          <div style={{ 
-            height: '450px', 
-            overflowY: 'auto', 
-            border: '2px solid var(--border-color)', 
-            borderRadius: '12px',
-            padding: '20px', 
-            marginBottom: '16px',
-            background: 'var(--bg-color)'
-          }}>
-            {messages.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-secondary)' }}>
-                <div style={{ fontSize: '48px', marginBottom: '12px' }}>💬</div>
-                <p>No messages yet. Start the conversation!</p>
+      {activeTab === 'details' && (
+        <div className="swap-detail-card">
+          <div className="swap-detail-header">
+            <h2>Swap Information</h2>
+            {getStatusBadge(swap.status)}
+          </div>
+
+          {/* Item Comparison - My Item vs Their Item */}
+          <h3 className="swap-comparison-title"><i className="fas fa-balance-scale"></i> Item Comparison</h3>
+          <div className="swap-comparison">
+            <div className="swap-item-card my-item">
+              <h4><i className="fas fa-user"></i> My Item</h4>
+              <div className="swap-item-image">
+                {myItem?.images?.[0] ? (
+                  <img src={myItem.images[0].url} alt={myItem.title} />
+                ) : (
+                  <div className="swap-item-placeholder"><i className="fas fa-box-open"></i></div>
+                )}
               </div>
-            ) : (
-              messages.map((msg) => (
-                <div 
-                  key={msg._id} 
-                  style={{ 
-                    marginBottom: '16px',
-                    display: 'flex',
-                    justifyContent: isMyMessage(msg) ? 'flex-end' : 'flex-start'
-                  }}
-                >
-                  <div style={{
-                    maxWidth: '70%',
-                    padding: '12px 16px',
-                    borderRadius: '16px',
-                    background: isMyMessage(msg) 
-                      ? 'linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%)'
-                      : 'var(--card-bg)',
-                    color: isMyMessage(msg) ? 'white' : 'var(--text-primary)',
-                    boxShadow: 'var(--shadow-sm)',
-                    border: isMyMessage(msg) ? 'none' : '1px solid var(--border-color)'
-                  }}>
-                    <div style={{ 
-                      fontSize: '12px', 
-                      fontWeight: '600', 
-                      marginBottom: '4px',
-                      opacity: 0.8
-                    }}>
-                      {msg.senderId?.name || 'Unknown'}
-                    </div>
-                    <div style={{ fontSize: '15px', lineHeight: '1.5' }}>
-                      {msg.body}
-                    </div>
-                    <div style={{ 
-                      fontSize: '11px', 
-                      marginTop: '4px',
-                      opacity: 0.7
-                    }}>
-                      {new Date(msg.createdAt).toLocaleTimeString()}
-                    </div>
+              <Link to={`/items/${myItem?._id}`} className="swap-item-title">{myItem?.title || 'Loading...'}</Link>
+              <p className="swap-item-meta">{myItem?.condition} • {myItem?.category}</p>
+              {myItem?.location && <p className="swap-item-location"><i className="fas fa-map-marker-alt"></i> {myItem.location}</p>}
+              <Link to={`/items/${myItem?._id}`} className="swap-item-link">View full details</Link>
+            </div>
+            <div className="swap-comparison-vs">VS</div>
+            <div className="swap-item-card their-item">
+              <h4><i className="fas fa-user-friends"></i> Their Item ({otherUser?.name || 'Other user'})</h4>
+              <div className="swap-item-image">
+                {theirItem?.images?.[0] ? (
+                  <img src={theirItem.images[0].url} alt={theirItem.title} />
+                ) : (
+                  <div className="swap-item-placeholder"><i className="fas fa-box-open"></i></div>
+                )}
+              </div>
+              <Link to={`/items/${theirItem?._id}`} className="swap-item-title">{theirItem?.title || 'Loading...'}</Link>
+              <p className="swap-item-meta">{theirItem?.condition} • {theirItem?.category}</p>
+              {theirItem?.location && <p className="swap-item-location"><i className="fas fa-map-marker-alt"></i> {theirItem.location}</p>}
+              <Link to={`/items/${theirItem?._id}`} className="swap-item-link">View full details</Link>
+            </div>
+          </div>
+
+          {swap.status === 'PENDING' && isResponder && (
+            <div className="swap-actions">
+              <button onClick={() => handleAction('accept')} className="btn btn-success">
+                <i className="fas fa-check"></i> Accept Swap
+              </button>
+              <button onClick={() => handleAction('reject')} className="btn btn-danger">
+                <i className="fas fa-times"></i> Reject Swap
+              </button>
+            </div>
+          )}
+          {swap.status === 'ACCEPTED' && (
+            <div className="swap-actions">
+              <button onClick={() => handleAction('complete')} className="btn btn-success">
+                <i className="fas fa-check-double"></i> Mark Swap as Complete
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {activeTab === 'chat' && (
+        <div className="swap-detail-card swap-chat-card">
+          <h2><i className="fas fa-comments"></i> Chat with {otherUser?.name || 'swap partner'}</h2>
+          {roomId ? (
+            <>
+              <div className="swap-chat-messages">
+                {messages.length === 0 ? (
+                  <div className="swap-chat-empty">
+                    <i className="fas fa-comment-dots"></i>
+                    <p>No messages yet. Start the conversation!</p>
                   </div>
-                </div>
-              ))
-            )}
-            <div ref={messagesEndRef} />
-          </div>
-          <div style={{ display: 'flex', gap: '12px' }}>
-            <input
-              type="text"
-              value={newMessage}
-              onChange={(e) => setNewMessage(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
-              placeholder="Type your message..."
-              className="form-group"
-              style={{ flex: 1, margin: 0 }}
-            />
-            <button onClick={sendMessage} className="btn btn-primary">
-              📤 Send
-            </button>
-          </div>
+                ) : (
+                  messages.map((msg) => (
+                    <div
+                      key={msg._id}
+                      className={`swap-chat-message ${isMyMessage(msg) ? 'mine' : 'theirs'}`}
+                    >
+                      <div className="swap-chat-bubble">
+                        <div className="swap-chat-sender">{msg.senderId?.name || 'Unknown'}</div>
+                        <div className="swap-chat-body">{msg.body}</div>
+                        <div className="swap-chat-time">{new Date(msg.createdAt).toLocaleTimeString()}</div>
+                      </div>
+                    </div>
+                  ))
+                )}
+                <div ref={messagesEndRef} />
+              </div>
+              <div className="swap-chat-input">
+                <input
+                  type="text"
+                  value={newMessage}
+                  onChange={(e) => setNewMessage(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
+                  placeholder="Type your message..."
+                />
+                <button onClick={sendMessage} className="btn btn-primary">
+                  <i className="fas fa-paper-plane"></i> Send
+                </button>
+              </div>
+            </>
+          ) : (
+            <p className="swap-chat-no-room">Chat will be available after the swap is accepted.</p>
+          )}
         </div>
       )}
     </div>

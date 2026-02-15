@@ -26,12 +26,13 @@
   text-decoration: none;
   color: inherit;
   border: 1px solid var(--border-color);
-  transition: all 0.2s;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .olx-card:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  transform: translateY(-4px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .olx-card-image {
@@ -78,6 +79,14 @@
 .olx-card-wishlist:hover {
   background: #fff;
   transform: scale(1.1);
+}
+
+.olx-card-wishlist.wishlist-active {
+  color: #ef4444;
+}
+
+.olx-card-wishlist.wishlist-active i {
+  color: #ef4444;
 }
 
 .olx-card-badge {

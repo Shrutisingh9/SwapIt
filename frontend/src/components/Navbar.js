@@ -3,11 +3,25 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import './Navbar.css';
 
-const CATEGORIES = [
+// Few categories shown in navbar pills - rest in All Categories dropdown
+const CATEGORIES_PILLS = [
+  { label: 'All', value: '' },
+  { label: 'Electronics', value: 'Electronics' },
+  { label: 'Clothing', value: 'Clothing' },
+  { label: 'Books', value: 'Books' }
+];
+
+const CATEGORIES_ALL = [
+  { label: 'All', value: '' },
   { label: 'Electronics', value: 'Electronics' },
   { label: 'Furniture', value: 'Furniture' },
   { label: 'Clothing', value: 'Clothing' },
   { label: 'Books', value: 'Books' },
+  { label: 'Sports', value: 'Sports' },
+  { label: 'Toys & Games', value: 'Toys & Games' },
+  { label: 'Home & Kitchen', value: 'Home & Kitchen' },
+  { label: 'Beauty', value: 'Beauty' },
+  { label: 'Vehicles', value: 'Vehicles' },
   { label: 'Other', value: 'Other' }
 ];
 
@@ -71,11 +85,20 @@ function Navbar() {
               <i className="fas fa-search"></i>
             </button>
           </form>
+          <div className="navbar-main-links">
+            <Link to="/" className={isHome ? 'active' : ''}>Feed</Link>
+            <Link to="/explore" className={isExplore ? 'active' : ''}>Explore</Link>
+            {user && <Link to="/chat" className={location.pathname === '/chat' ? 'active' : ''}><i className="fas fa-comments"></i> Chat</Link>}
+            {user && <Link to="/swaps">My Swaps</Link>}
+            {user && <Link to="/notifications"><i className="fas fa-bell"></i></Link>}
+          </div>
           <div className="navbar-actions">
-            <Link to="/profile" className="nav-action-link" title="Profile / Wishlist">
-              <i className="fas fa-heart action-icon"></i>
-              <span className="action-label">Wishlist</span>
-            </Link>
+            {user && (
+              <Link to="/wishlist" className="nav-action-link" title="Wishlist">
+                <i className="fas fa-heart action-icon"></i>
+                <span className="action-label">Wishlist</span>
+              </Link>
+            )}
             {user ? (
               <>
                 <Link to="/profile" className="nav-action-link">
@@ -116,10 +139,10 @@ function Navbar() {
             {showCategories && (
               <div className="categories-dropdown">
                 <div className="categories-grid">
-                  {CATEGORIES.map((cat) => (
+                  {CATEGORIES_ALL.map((cat) => (
                     <Link
-                      key={cat.value}
-                      to={`/?category=${cat.value}`}
+                      key={cat.value || 'all'}
+                      to={isHome ? (cat.value ? `/?category=${cat.value}` : '/') : (cat.value ? `/explore?category=${cat.value}` : '/explore')}
                       className="category-item"
                       onClick={() => setShowCategories(false)}
                     >
@@ -131,23 +154,16 @@ function Navbar() {
             )}
           </div>
           <div className="category-pills">
-            {CATEGORIES.map((cat) => (
+            {CATEGORIES_PILLS.map((cat) => (
               <Link
-                key={cat.value}
-                to={isHome ? `/?category=${cat.value}` : `/explore?category=${cat.value}`}
-                className={`pill ${activeCategory === cat.value ? 'active' : ''}`}
+                key={cat.value || 'all'}
+                to={isHome ? (cat.value ? `/?category=${cat.value}` : '/') : (cat.value ? `/explore?category=${cat.value}` : '/explore')}
+                className={`pill ${(cat.value ? activeCategory === cat.value : !activeCategory) ? 'active' : ''}`}
               >
                 {cat.label}
               </Link>
             ))}
           </div>
-          <div className="secondary-links">
-            <Link to="/" className={isHome ? 'active' : ''}>Feed</Link>
-            <Link to="/explore" className={isExplore ? 'active' : ''}>Explore</Link>
-            {user && <Link to="/swaps">My Swaps</Link>}
-            {user && <Link to="/notifications"><i className="fas fa-bell"></i></Link>}
-          </div>
-          <span className="date-display">{new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
         </div>
       </div>
     </div>

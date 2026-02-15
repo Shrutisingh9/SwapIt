@@ -90,11 +90,19 @@ class SwapService {
         { responderId: new mongoose.Types.ObjectId(userId) }
       ]
     })
+      .populate("requesterId", "name email")
+      .populate("responderId", "name email")
       .populate("requestedItemId")
       .populate("offeredItemId")
       .sort({ createdAt: -1 });
 
-    return swaps;
+    const rooms = await ChatRoom.find({ swapId: { $in: swaps.map((s) => s._id) } });
+    const roomBySwap = Object.fromEntries(rooms.map((r) => [r.swapId.toString(), r._id.toString()]));
+
+    return swaps.map((s) => ({
+      ...s.toObject(),
+      chatRoomId: roomBySwap[s._id.toString()] || null
+    }));
   }
 
   async changeStatus(userId, swapId, newStatus) {

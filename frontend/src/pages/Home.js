@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
+import { useAuth } from '../contexts/AuthContext';
+import { SkeletonItemGrid } from '../components/Skeleton';
 import './Home.css';
 
 const ITEMS_PER_PAGE = 12;
@@ -17,8 +19,10 @@ function formatDate(dateStr) {
 }
 
 function Home() {
+  const { user } = useAuth();
   const [searchParams] = useSearchParams();
   const [items, setItems] = useState([]);
+  const [savedIds, setSavedIds] = useState(new Set());
   const [displayCount, setDisplayCount] = useState(ITEMS_PER_PAGE);
   const [loading, setLoading] = useState(true);
 
@@ -28,6 +32,34 @@ function Home() {
   useEffect(() => {
     fetchItems();
   }, [q, category]);
+
+  useEffect(() => {
+    if (user) {
+      axios.get('/api/v1/users/me').then((res) => {
+        const ids = (res.data?.user?.savedItems || []).map((id) => (id?._id || id).toString());
+        setSavedIds(new Set(ids));
+      }).catch(() => {});
+    } else {
+      setSavedIds(new Set());
+    }
+  }, [user]);
+
+  const toggleWishlist = async (e, itemId) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!user) return;
+    try {
+      await axios.post(`/api/v1/users/me/wishlist/${itemId}`);
+      setSavedIds((prev) => {
+        const next = new Set(prev);
+        if (next.has(itemId)) next.delete(itemId);
+        else next.add(itemId);
+        return next;
+      });
+    } catch (e) {
+      console.error('Failed to toggle wishlist', e);
+    }
+  };
 
   const fetchItems = async () => {
     try {
@@ -50,9 +82,9 @@ function Home() {
 
   if (loading) {
     return (
-      <div className="home-loading">
-        <div className="loading" style={{ width: '50px', height: '50px' }}></div>
-        <p>Loading items...</p>
+      <div className="home-olx fade-in">
+        <h2 className="section-title">Fresh recommendations</h2>
+        <SkeletonItemGrid count={12} />
       </div>
     );
   }
@@ -79,14 +111,11 @@ function Home() {
                     <div className="olx-card-placeholder"><i className="fas fa-box-open"></i></div>
                   )}
                   <button
-                    className="olx-card-wishlist"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                    }}
-                    aria-label="Add to wishlist"
+                    className={`olx-card-wishlist ${savedIds.has(item._id) ? 'wishlist-active' : ''}`}
+                    onClick={(e) => toggleWishlist(e, item._id)}
+                    aria-label={savedIds.has(item._id) ? 'Remove from wishlist' : 'Add to wishlist'}
                   >
-                    <i className="far fa-heart"></i>
+                    <i className={savedIds.has(item._id) ? 'fas fa-heart' : 'far fa-heart'}></i>
                   </button>
                   {(item.isForDonation || item.isForSwap) && (
                     <span className="olx-card-badge">

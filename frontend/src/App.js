@@ -8,9 +8,11 @@ import ItemDetail from './pages/ItemDetail';
 import CreateItem from './pages/CreateItem';
 import MySwaps from './pages/MySwaps';
 import SwapDetail from './pages/SwapDetail';
+import Chat from './pages/Chat';
 import Explore from './pages/Explore';
 import Profile from './pages/Profile';
 import Notifications from './pages/Notifications';
+import Wishlist from './pages/Wishlist';
 import Navbar from './components/Navbar';
 import './App.css';
 
@@ -40,6 +42,14 @@ function App() {
               }
             />
             <Route
+              path="/chat"
+              element={
+                <PrivateRoute>
+                  <Chat />
+                </PrivateRoute>
+              }
+            />
+            <Route
               path="/swaps"
               element={
                 <PrivateRoute>
@@ -60,6 +70,14 @@ function App() {
               element={
                 <PrivateRoute>
                   <Profile />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/wishlist"
+              element={
+                <PrivateRoute>
+                  <Wishlist />
                 </PrivateRoute>
               }
             />

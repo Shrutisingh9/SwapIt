@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../contexts/AuthContext';
+import { SkeletonSwapCard } from '../components/Skeleton';
 
 function MySwaps() {
   const { user } = useAuth();
@@ -46,9 +47,13 @@ function MySwaps() {
 
   if (loading) {
     return (
-      <div style={{ textAlign: 'center', padding: '60px 20px' }}>
-        <div className="loading" style={{ width: '50px', height: '50px', margin: '0 auto' }}></div>
-        <p style={{ marginTop: '20px', color: 'var(--text-secondary)' }}>Loading your swaps...</p>
+      <div className="fade-in">
+        <h1 className="page-title"><i className="fas fa-exchange-alt"></i> My Swaps</h1>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          <SkeletonSwapCard />
+          <SkeletonSwapCard />
+          <SkeletonSwapCard />
+        </div>
       </div>
     );
   }
@@ -71,8 +76,8 @@ function MySwaps() {
           {swaps.map((swap) => {
             const requestedItem = swap.requestedItemId;
             const offeredItem = swap.offeredItemId;
-            const requestedOwnerId = requestedItem?.ownerId?._id || requestedItem?.ownerId;
-            const isRequester = user?.id === requestedOwnerId;
+            const responderId = requestedItem?.ownerId?._id?.toString() || requestedItem?.ownerId?.toString();
+            const isResponder = user?.id === responderId;
 
             return (
               <div key={swap._id} className="card">
@@ -96,7 +101,7 @@ function MySwaps() {
                     border: '2px solid rgba(99, 102, 241, 0.1)'
                   }}>
                     <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '12px', color: 'var(--text-secondary)' }}>
-                      🎯 Requested Item
+                      <i className="fas fa-bullseye"></i> Requested Item
                     </h3>
                     <Link 
                       to={`/items/${requestedItem?._id || requestedItem}`}
@@ -117,7 +122,7 @@ function MySwaps() {
                     border: '2px solid rgba(16, 185, 129, 0.1)'
                   }}>
                     <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '12px', color: 'var(--text-secondary)' }}>
-                      💎 Your Offer
+                      <i className="fas fa-gem"></i> Your Offer
                     </h3>
                     <Link 
                       to={`/items/${offeredItem?._id || offeredItem}`}
@@ -135,21 +140,21 @@ function MySwaps() {
 
                 <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
                   <Link to={`/swaps/${swap._id}`} className="btn btn-primary">
-                    💬 View Details & Chat
+                    <i className="fas fa-comments"></i> View Details & Chat
                   </Link>
-                  {swap.status === 'PENDING' && !isRequester && (
+                  {swap.status === 'PENDING' && isResponder && (
                     <>
                       <button 
                         onClick={() => handleAction(swap._id, 'accept')} 
                         className="btn btn-success"
                       >
-                        ✅ Accept
+                        <i className="fas fa-check"></i> Accept
                       </button>
                       <button 
                         onClick={() => handleAction(swap._id, 'reject')} 
                         className="btn btn-danger"
                       >
-                        ❌ Reject
+                        <i className="fas fa-times"></i> Reject
                       </button>
                     </>
                   )}
@@ -158,7 +163,7 @@ function MySwaps() {
                       onClick={() => handleAction(swap._id, 'complete')} 
                       className="btn btn-success"
                     >
-                      🎉 Mark Complete
+                      <i className="fas fa-check-double"></i> Mark Complete
                     </button>
                   )}
                 </div>

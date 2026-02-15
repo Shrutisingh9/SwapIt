@@ -1,0 +1,184 @@
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(226, 232, 240, 0.6) 25%,
+    rgba(241, 245, 249, 0.9) 50%,
+    rgba(226, 232, 240, 0.6) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+  border-radius: 8px;
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.skeleton-block {
+  width: 100%;
+  height: 100%;
+  min-height: 120px;
+}
+
+.skeleton-line {
+  height: 16px;
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.skeleton-line.short {
+  width: 60%;
+}
+
+.skeleton-line.long {
+  width: 90%;
+}
+
+/* Card skeleton */
+.skeleton-card {
+  min-height: 280px;
+}
+
+.skeleton-card-image {
+  height: 180px;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.skeleton-card-body .skeleton-line:last-child {
+  margin-bottom: 0;
+}
+
+/* List skeleton */
+.skeleton-list-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border-color);
+  animation: fadeIn 0.4s ease-out backwards;
+}
+
+.skeleton-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.skeleton-list-content {
+  flex: 1;
+}
+
+.skeleton-list-content .skeleton-line.short {
+  width: 70%;
+  margin-top: 8px;
+}
+
+/* Swap card skeleton */
+.skeleton-swap-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.skeleton-swap-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.skeleton-swap-block {
+  padding: 20px;
+  border-radius: 12px;
+  background: rgba(107, 142, 116, 0.05);
+}
+
+.skeleton-swap-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.skeleton-btn {
+  width: 140px;
+  height: 44px;
+  border-radius: 8px;
+}
+
+/* Detail skeleton */
+.skeleton-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+}
+
+.skeleton-detail-image {
+  min-height: 400px;
+  border-radius: 16px;
+}
+
+.skeleton-detail-meta {
+  display: flex;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+@media (max-width: 768px) {
+  .skeleton-detail-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Chat skeleton */
+.skeleton-chat-page {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  min-height: 500px;
+  gap: 0;
+}
+
+.skeleton-chat-sidebar {
+  padding: 24px;
+  border-right: 1px solid var(--border-color);
+}
+
+.skeleton-chat-sidebar .skeleton-line {
+  margin-bottom: 24px;
+}
+
+.skeleton-chat-main {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+}
+
+.skeleton-chat-main .skeleton-line {
+  margin-bottom: 24px;
+}
+
+.skeleton-chat-messages {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px 0;
+}
+
+.skeleton-chat-bubble {
+  width: 200px;
+  height: 60px;
+  border-radius: 16px;
+}
+
+@media (max-width: 768px) {
+  .skeleton-chat-page {
+    grid-template-columns: 1fr;
+  }
+}

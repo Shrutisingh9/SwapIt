@@ -10,7 +10,7 @@ const router = Router();
 router.get("/me", requireAuth, async (req, res, next) => {
   try {
     const user = await User.findById(req.user.id).select(
-      "email name location avatarUrl bio gender dateOfBirth phone rating ratingCount isVerified swapPoints"
+      "email name location avatarUrl bio gender dateOfBirth phone rating ratingCount isVerified swapPoints savedItems"
     );
 
     if (!user) {
@@ -60,6 +60,44 @@ router.patch("/me", requireAuth, async (req, res, next) => {
 
     if (!user) return res.status(404).json({ error: "NotFound", message: "User not found" });
     res.json(user);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// Toggle wishlist (add/remove saved item)
+router.post("/me/wishlist/:itemId", requireAuth, async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    const itemId = req.params.itemId;
+    const user = await User.findById(userId).select("savedItems");
+    if (!user) return res.status(404).json({ error: "NotFound", message: "User not found" });
+    const saved = user.savedItems || [];
+    const idx = saved.findIndex((id) => id.toString() === itemId);
+    if (idx >= 0) {
+      saved.splice(idx, 1);
+      user.savedItems = saved;
+      await user.save();
+      return res.json({ saved: false, savedItems: user.savedItems });
+    }
+    saved.push(itemId);
+    user.savedItems = saved;
+    await user.save();
+    return res.json({ saved: true, savedItems: user.savedItems });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// Get saved/wishlist items
+router.get("/me/wishlist", requireAuth, async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user.id).select("savedItems");
+    if (!user || !user.savedItems?.length) return res.json([]);
+    const items = await Item.find({ _id: { $in: user.savedItems }, status: "AVAILABLE" })
+      .populate("ownerId", "name rating location")
+      .sort({ createdAt: -1 });
+    res.json(items);
   } catch (err) {
     next(err);
   }

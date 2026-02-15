@@ -203,6 +203,19 @@ code {
   transform: translateY(-4px);
 }
 
+/* Pulse on interactive elements */
+@keyframes pulse-subtle {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.9; }
+}
+
+.btn:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
 .card h1,
 .card h2,
 .card h3 {
@@ -248,7 +261,57 @@ code {
 }
 
 .fade-in {
-  animation: fadeIn 0.5s ease-out;
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+/* Stagger animation for grid items */
+.olx-grid .olx-card,
+.grid .card {
+  animation: fadeIn 0.5s ease-out backwards;
+}
+
+.olx-grid .olx-card:nth-child(1), .grid .card:nth-child(1) { animation-delay: 0.02s; }
+.olx-grid .olx-card:nth-child(2), .grid .card:nth-child(2) { animation-delay: 0.04s; }
+.olx-grid .olx-card:nth-child(3), .grid .card:nth-child(3) { animation-delay: 0.06s; }
+.olx-grid .olx-card:nth-child(4), .grid .card:nth-child(4) { animation-delay: 0.08s; }
+.olx-grid .olx-card:nth-child(5), .grid .card:nth-child(5) { animation-delay: 0.1s; }
+.olx-grid .olx-card:nth-child(6), .grid .card:nth-child(6) { animation-delay: 0.12s; }
+.olx-grid .olx-card:nth-child(7), .grid .card:nth-child(7) { animation-delay: 0.14s; }
+.olx-grid .olx-card:nth-child(8), .grid .card:nth-child(8) { animation-delay: 0.16s; }
+.olx-grid .olx-card:nth-child(9), .grid .card:nth-child(9) { animation-delay: 0.18s; }
+.olx-grid .olx-card:nth-child(10), .grid .card:nth-child(10) { animation-delay: 0.2s; }
+.olx-grid .olx-card:nth-child(11), .grid .card:nth-child(11) { animation-delay: 0.22s; }
+.olx-grid .olx-card:nth-child(12), .grid .card:nth-child(12) { animation-delay: 0.24s; }
+
+/* Slide in for chat messages */
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.chat-message.mine .chat-bubble {
+  animation: slideInRight 0.3s ease-out;
+}
+
+.chat-message.theirs .chat-bubble {
+  animation: slideInLeft 0.3s ease-out;
 }
 
 /* Badge Styles */
