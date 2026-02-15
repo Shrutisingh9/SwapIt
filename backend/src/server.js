@@ -72,12 +72,12 @@ async function bootstrap() {
   // ✅ SERVE REACT FRONTEND (PRODUCTION)
   // ==============================
   if (process.env.NODE_ENV === "production") {
-    const buildPath = path.join(__dirname, "../../frontend/build");
-
+    const buildPath = require("path").join(process.cwd(), "../frontend/build");
+  
     app.use(require("express").static(buildPath));
-
+  
     app.get("*", (req, res) => {
-      res.sendFile(path.join(buildPath, "index.html"));
+      res.sendFile(require("path").join(buildPath, "index.html"));
     });
   }
 
