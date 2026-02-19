@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { INDIA_LOCATIONS, MAJOR_CITIES } from '../data/indiaLocation';
 import './Navbar.css';
 
-// Few categories shown in navbar pills - rest in All Categories dropdown
 const CATEGORIES_PILLS = [
   { label: 'All', value: '' },
   { label: 'Electronics', value: 'Electronics' },
@@ -26,23 +26,19 @@ const CATEGORIES_ALL = [
 ];
 
 function Navbar() {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const urlParams = new URLSearchParams(location.search);
   const [searchQuery, setSearchQuery] = useState(urlParams.get('q') || '');
-  const [locationFilter, setLocationFilter] = useState('India');
+  const [locationLabel, setLocationLabel] = useState('All India');
+  const [showLocationDropdown, setShowLocationDropdown] = useState(false);
   const [showCategories, setShowCategories] = useState(false);
 
   useEffect(() => {
     const p = new URLSearchParams(location.search);
     setSearchQuery(p.get('q') || '');
   }, [location.search]);
-
-  const handleLogout = () => {
-    logout();
-    navigate('/');
-  };
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -56,6 +52,20 @@ function Navbar() {
     }
   };
 
+  const handleLocationSelect = (label) => {
+    setLocationLabel(label);
+    setShowLocationDropdown(false);
+  };
+
+  // Combine all locations and sort alphabetically
+  const allLocationsSorted = useMemo(() => {
+    const all = [
+      ...INDIA_LOCATIONS.map(loc => loc.label),
+      ...MAJOR_CITIES
+    ];
+    return all.sort((a, b) => a.localeCompare(b));
+  }, []);
+
   const isHome = location.pathname === '/';
   const isExplore = location.pathname === '/explore';
   const activeCategory = urlParams.get('category');
@@ -68,30 +78,50 @@ function Navbar() {
             <i className="fas fa-recycle logo-icon"></i>
             SwapIt
           </Link>
-          <div className="navbar-location" onClick={() => setLocationFilter(locationFilter === 'India' ? 'All India' : 'India')}>
-            <i className="fas fa-map-marker-alt location-icon"></i>
-            <span>{locationFilter}</span>
-            <i className="fas fa-chevron-down dropdown-arrow"></i>
+          {!user && (
+            <p className="navbar-tagline">Swap · Donate · Connect</p>
+          )}
+          <div className="navbar-location-wrap">
+            <button
+              type="button"
+              className="navbar-location"
+              onClick={() => setShowLocationDropdown(!showLocationDropdown)}
+              aria-expanded={showLocationDropdown}
+            >
+              <i className="fas fa-map-marker-alt location-icon"></i>
+              <span>{locationLabel}</span>
+              <i className="fas fa-chevron-down dropdown-arrow"></i>
+            </button>
+            {showLocationDropdown && (
+              <>
+                <div className="navbar-dropdown-backdrop" onClick={() => setShowLocationDropdown(false)} />
+                <div className="navbar-location-dropdown">
+                  {allLocationsSorted.map((loc) => (
+                    <button
+                      key={loc}
+                      type="button"
+                      className="location-option"
+                      onClick={() => handleLocationSelect(loc)}
+                    >
+                      {loc}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
           </div>
           <form className="navbar-search" onSubmit={handleSearch}>
             <input
               type="text"
-              placeholder={`Search 'Mobiles', 'Books', 'Electronics'...`}
+              placeholder="Search items, categories..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="search-input-olx"
             />
             <button type="submit" className="search-btn" aria-label="Search">
-              <i className="fas fa-search"></i>
+              <i className="fas fa-search"></i> Search
             </button>
           </form>
-          <div className="navbar-main-links">
-            <Link to="/" className={isHome ? 'active' : ''}>Feed</Link>
-            <Link to="/explore" className={isExplore ? 'active' : ''}>Explore</Link>
-            {user && <Link to="/chat" className={location.pathname === '/chat' ? 'active' : ''}><i className="fas fa-comments"></i> Chat</Link>}
-            {user && <Link to="/swaps">My Swaps</Link>}
-            {user && <Link to="/notifications"><i className="fas fa-bell"></i></Link>}
-          </div>
           <div className="navbar-actions">
             {user && (
               <Link to="/wishlist" className="nav-action-link" title="Wishlist">
@@ -100,28 +130,15 @@ function Navbar() {
               </Link>
             )}
             {user ? (
-              <>
-                <Link to="/profile" className="nav-action-link">
-                  <i className="fas fa-user action-icon"></i>
-                  <span className="action-label">{user.name}</span>
-                </Link>
-                <button onClick={handleLogout} className="nav-action-link btn-text">
-                  Logout
-                </button>
-                <Link to="/items/create" className="btn-sell">
-                  + ADD ITEM
-                </Link>
-              </>
+              <Link to="/profile" className="nav-action-link">
+                <i className="fas fa-user action-icon"></i>
+                <span className="action-label">{user.name}</span>
+              </Link>
             ) : (
-              <>
-                <Link to="/login" className="nav-action-link">
-                  <i className="fas fa-user action-icon"></i>
-                  <span className="action-label">Login</span>
-                </Link>
-                <Link to="/items/create" className="btn-sell">
-                  + ADD ITEM
-                </Link>
-              </>
+              <Link to="/login" className="nav-action-link">
+                <i className="fas fa-sign-in-alt action-icon"></i>
+                <span className="action-label">Login</span>
+              </Link>
             )}
           </div>
         </div>
@@ -131,6 +148,7 @@ function Navbar() {
         <div className="secondary-inner">
           <div className="categories-wrapper">
             <button
+              type="button"
               className={`btn-all-categories ${showCategories ? 'active' : ''}`}
               onClick={() => setShowCategories(!showCategories)}
             >
@@ -163,6 +181,16 @@ function Navbar() {
                 {cat.label}
               </Link>
             ))}
+          </div>
+          <div className="secondary-links">
+            <Link to="/" className={isHome ? 'active' : ''}><i className="fas fa-home"></i> Feed</Link>
+            <Link to="/explore" className={isExplore ? 'active' : ''}><i className="fas fa-compass"></i> Explore</Link>
+            {user && <Link to="/chat" className={location.pathname === '/chat' ? 'active' : ''}><i className="fas fa-comments"></i> Chat</Link>}
+            {user && <Link to="/swaps"><i className="fas fa-exchange-alt"></i> My Swaps</Link>}
+            {user && <Link to="/notifications"><i className="fas fa-bell"></i> Notifications</Link>}
+            <Link to="/items/create" className="btn-sell-secondary">
+              <i className="fas fa-plus"></i> ADD ITEM
+            </Link>
           </div>
         </div>
       </div>

@@ -237,14 +237,6 @@ function ItemDetail() {
                   </button>
                 )}
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-                <span className="item-owner-rating" style={{ fontSize: '16px' }}>
-                  <i className="fas fa-star"></i> {item.ownerId?.rating?.toFixed(1) || '0.0'}
-                </span>
-                <span style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>
-                  ({item.ownerId?.ratingCount || 0} ratings)
-                </span>
-              </div>
               {item.ownerId?.location && (
                 <div style={{ color: 'var(--text-secondary)', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '4px' }}>
                   <i className="fas fa-map-marker-alt"></i> {item.ownerId.location}

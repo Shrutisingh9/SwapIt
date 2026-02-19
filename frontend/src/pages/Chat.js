@@ -16,6 +16,7 @@ function Chat() {
   const [newMessage, setNewMessage] = useState('');
   const [socket, setSocket] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showMenu, setShowMenu] = useState(false);
   const messagesEndRef = useRef(null);
 
   const active = conversations.find((c) => c._id === activeId || c.chatRoomId === activeId);
@@ -94,16 +95,43 @@ function Chat() {
     }
   };
 
-  const handleDeleteContact = async (e) => {
-    e.preventDefault();
+  const handleDeleteContact = async () => {
     if (!active?.otherUser?.id || !window.confirm('Remove this chat from your list? They won\'t be notified.')) return;
     try {
       await axios.delete(`/api/v1/chat/contacts/${active.otherUser.id}`);
       await fetchConversations();
       navigate('/chat');
+      setShowMenu(false);
     } catch (e) {
       console.error('Failed to delete contact', e);
     }
+  };
+
+  const handleClearChat = async () => {
+    if (!roomId || !window.confirm('Clear all messages in this chat? This cannot be undone.')) return;
+    try {
+      await axios.delete(`/api/v1/chat/rooms/${roomId}/messages`);
+      await fetchMessages();
+      setShowMenu(false);
+    } catch (e) {
+      console.error('Failed to clear chat', e);
+    }
+  };
+
+  const handleMuteNotifications = () => {
+    alert('Mute notifications feature coming soon!');
+    setShowMenu(false);
+  };
+
+  const handleBlock = () => {
+    if (!active?.otherUser?.id || !window.confirm('Block this user? You won\'t be able to chat with them.')) return;
+    alert('Block feature coming soon!');
+    setShowMenu(false);
+  };
+
+  const handleReport = () => {
+    alert('Report feature coming soon!');
+    setShowMenu(false);
   };
 
   const isMyMessage = (msg) => msg.senderId?._id === user?.id || msg.senderId === user?.id;
@@ -173,20 +201,58 @@ function Chat() {
           {active ? (
             <>
               <div className="chat-header">
-                <h3><i className="fas fa-user"></i> {active.otherUser?.name || 'Chat partner'}</h3>
+                <div className="chat-header-user">
+                  <div className="chat-header-avatar">
+                    {active.otherUser?.name?.charAt(0) || '?'}
+                  </div>
+                  <h3>{active.otherUser?.name || 'Chat partner'}</h3>
+                </div>
                 <div className="chat-header-actions">
                   {active.type === 'swap' && (
-                    <Link to={`/swaps/${active._id}`} className="chat-view-swap">
-                      <i className="fas fa-exchange-alt"></i> View swap
+                    <Link to={`/swaps/${active._id}`} className="btn btn-sm btn-secondary">
+                      <i className="fas fa-exchange-alt"></i> View Details
                     </Link>
                   )}
-                  <button
-                    onClick={handleDeleteContact}
-                    className="chat-delete-contact"
-                    title="Remove from chat list"
-                  >
-                    <i className="fas fa-trash-alt"></i> Remove
-                  </button>
+                  {active.type === 'direct' && active.requestedItem && (
+                    <Link to={`/items/${active.itemId || ''}`} className="btn btn-sm btn-secondary">
+                      <i className="fas fa-box"></i> View Item
+                    </Link>
+                  )}
+                  <div className="chat-menu-wrapper">
+                    <button
+                      type="button"
+                      className="chat-menu-btn"
+                      onClick={() => setShowMenu(!showMenu)}
+                      aria-label="More options"
+                    >
+                      <i className="fas fa-ellipsis-v"></i>
+                    </button>
+                    {showMenu && (
+                      <>
+                        <div className="chat-menu-backdrop" onClick={() => setShowMenu(false)} />
+                        <div className="chat-menu-dropdown">
+                          <button type="button" className="chat-menu-item" onClick={() => { alert('Contact info coming soon!'); setShowMenu(false); }}>
+                            <i className="fas fa-info-circle"></i> Contact Info
+                          </button>
+                          <button type="button" className="chat-menu-item" onClick={handleMuteNotifications}>
+                            <i className="fas fa-bell-slash"></i> Mute Notifications
+                          </button>
+                          <button type="button" className="chat-menu-item" onClick={handleReport}>
+                            <i className="fas fa-flag"></i> Report
+                          </button>
+                          <button type="button" className="chat-menu-item" onClick={handleBlock}>
+                            <i className="fas fa-ban"></i> Block
+                          </button>
+                          <button type="button" className="chat-menu-item" onClick={handleClearChat}>
+                            <i className="fas fa-eraser"></i> Clear Chat
+                          </button>
+                          <button type="button" className="chat-menu-item chat-menu-item-danger" onClick={handleDeleteContact}>
+                            <i className="fas fa-trash-alt"></i> Delete Chat
+                          </button>
+                        </div>
+                      </>
+                    )}
+                  </div>
                 </div>
               </div>
               <div className="chat-messages">
