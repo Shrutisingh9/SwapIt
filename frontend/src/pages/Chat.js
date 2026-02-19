@@ -35,7 +35,7 @@ function Chat() {
 
   useEffect(() => {
     if (roomId && token) {
-      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:4000';
+      const apiUrl = process.env.REACT_APP_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:4000');
       const newSocket = io(apiUrl, { auth: { token } });
 
       newSocket.on('connect', () => {

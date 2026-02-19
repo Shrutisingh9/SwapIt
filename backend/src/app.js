@@ -1,3 +1,4 @@
+const path = require("path");
 const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
@@ -43,6 +44,16 @@ function createApp() {
   app.use("/api/v1/reports", reportRouter);
   app.use("/api/v1/users", userRouter);
 
+  // Serve frontend static files when deployed together (e.g. Render)
+  const fs = require("fs");
+  const frontendBuild = path.join(__dirname, "../../frontend/build");
+  if (fs.existsSync(frontendBuild)) {
+    app.use(express.static(frontendBuild));
+    app.get("*", (req, res, next) => {
+      if (req.path.startsWith("/api")) return next();
+      res.sendFile(path.join(frontendBuild, "index.html"));
+    });
+  }
   app.use(notFoundHandler);
   app.use(errorHandler);
 
